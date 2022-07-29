@@ -99,4 +99,21 @@ let diskupload = multer({
 const form = new Formidable(); // Noncompliant, this form is not safe
 form.uploadDir = ""; // because upload dir is not defined (by default os temp dir: /var/tmp or /tmp)
 form.keepExtensions = true; // and file extensions are kept
+const multer = require('multer');
+
+let diskStorage = multer.diskStorage({ // Noncompliant: no destination specified
+  filename: (req, file, cb) => {
+    const buf = crypto.randomBytes(20);
+    cb(null, buf.toString('hex'))
+  }
+});
+const Formidable = require('formidable');
+
+const form = new Formidable(); // Noncompliant, this form is not safe
+form.uploadDir = ""; // because upload dir is not defined (by default os temp dir: /var/tmp or /tmp)
+form.keepExtensions = true; // and file extensions are kept
+// This upload is not safe as no destination specified, /var/tmp or /tmp will be used
+let diskupload = multer({
+  storage: diskStorage,
+});
  </script>
