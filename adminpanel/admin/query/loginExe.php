@@ -71,3 +71,7 @@ const pgcon = new pg.Client({ host: host, user: user, password: pass, database: 
 pgcon.connect();
 pgcon.query('SELECT * FROM users WHERE id = ' + userinput, (err, res) => {}); // Sensitive
  </script>
+ // ...
+BiometricPrompt biometricPrompt = new BiometricPrompt(activity, executor, callback);
+// ...
+biometricPrompt.authenticate(promptInfo); // Noncompliant
