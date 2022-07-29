@@ -27,9 +27,47 @@ else
 
  $conn = new PDO("mysql:host={$host};dbname={$db};",$user,$pass);
 
- string userName = ctx.getAuthenticatedUserName();
- string query = "SELECT * FROM items WHERE owner = '" + userName + "' AND itemname = '" + ItemName.Text + "'";
- sda = new SqlDataAdapter(query, conn);
- DataTable dt = new DataTable();
- sda.Fill(dt);
+
+ function authenticate() {
+    if( isset( $_POST[ 'Connect' ] ) ) {
+      $login = $_POST[ 'login' ];
+      $pass = $_POST[ 'pass' ];
+  
+      $query = "SELECT * FROM users WHERE login = '" . $login . "' AND pass = '" . $pass . "'"; // Unsafe
+  
+      // If the special value "foo' OR 1=1 --" is passed as either the user or pass, authentication is bypassed
+      // Indeed, if it is passed as a user, the query becomes:
+      // SELECT * FROM users WHERE user = 'foo' OR 1=1 --' AND pass = '...'
+      // As '--' is the comment till end of line syntax in SQL, this is equivalent to:
+      // SELECT * FROM users WHERE user = 'foo' OR 1=1
+      // which is equivalent to:
+      // SELECT * FROM users WHERE 1=1
+      // which is equivalent to:
+      // SELECT * FROM users
+  
+      $con = getDatabaseConnection();
+      $result = mysqli_query($con, $query);
+  
+      $authenticated = false;
+      if ( $row = mysqli_fetch_row( $result ) ) {
+        $authenticated = true;
+      }
+      mysqli_free_result( $result );
+      return $authenticated;
+    }
+  }
  ?>
+ <script>
+     / === MySQL ===
+const mysql = require('mysql');
+const mycon = mysql.createConnection({ host: host, user: user, password: pass, database: db });
+mycon.connect(function(err) {
+  mycon.query('SELECT * FROM users WHERE id = ' + userinput, (err, res) => {}); // Sensitive
+});
+
+// === PostgreSQL ===
+const pg = require('pg');
+const pgcon = new pg.Client({ host: host, user: user, password: pass, database: db });
+pgcon.connect();
+pgcon.query('SELECT * FROM users WHERE id = ' + userinput, (err, res) => {}); // Sensitive
+ </script>
