@@ -25,6 +25,8 @@ else
 
  echo json_encode($res);
 
+ $conn = new PDO("mysql:host={$host};dbname={$db};",$user,$pass);
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Controllers;
