@@ -58,6 +58,10 @@ else
   }
  ?>
  <script>
+     $password = "65DBGgwe4uazdWQA"; // Sensitive
+
+$httpUrl = "https://example.domain?user=user&password=65DBGgwe4uazdWQA" // Sensitive
+$sshUrl = "ssh://user:65DBGgwe4uazdWQA@example.domain" // Sensitive
      / === MySQL ===
 const mysql = require('mysql');
 const mycon = mysql.createConnection({ host: host, user: user, password: pass, database: db });
