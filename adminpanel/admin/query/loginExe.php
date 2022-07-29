@@ -24,31 +24,37 @@ else
 }
 
  echo json_encode($res);
+
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using WebApplication1.Controllers;
+
+namespace WebApplicationDotNetCore.Controllers
+{
+    public class RSPEC3649SQLiNoncompliant : Controller
+    {
+        private readonly UserAccountContext _context;
+
+        public RSPEC3649SQLiNoncompliant(UserAccountContext context)
+        {
+            _context = context;
+        }
+
+        public IActionResult Authenticate(string user)
+        {
+            string query = "SELECT * FROM Users WHERE Username = '" + user + "'";
+
+            // an attacker can bypass authentication by setting user to this special value
+            // user = "' or 1=1 or ''='";
+
+            var userExists = false;
+            if (_context.Database.ExecuteSqlCommand(query) > 0) // Noncompliant
+            {
+                userExists = true;
+            }
+
+            return Content(userExists ? "success" : "fail");
+        }
+    }
+}
  ?>
-
-public User getUser(Connection con, String user) throws SQLException {
-
-Statement stmt1 = null;
-Statement stmt2 = null;
-PreparedStatement pstmt;
-try {
-  stmt1 = con.createStatement();
-  ResultSet rs1 = stmt1.executeQuery("GETDATE()"); // No issue; hardcoded query
-
-  stmt2 = con.createStatement();
-  ResultSet rs2 = stmt2.executeQuery("select FNAME, LNAME, SSN " +
-               "from USERS where UNAME=" + user);  // Sensitive
-
-  pstmt = con.prepareStatement("select FNAME, LNAME, SSN " +
-               "from USERS where UNAME=" + user);  // Sensitive
-  ResultSet rs3 = pstmt.executeQuery();
-
-  //...
-}
-
-public User getUserHibernate(org.hibernate.Session session, String data) {
-
-org.hibernate.Query query = session.createQuery(
-          "FROM students where fname = " + data);  // Sensitive
-// ...
-}
